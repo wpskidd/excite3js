@@ -120,6 +120,7 @@ body.menu-open #mobilemenu{transform:translateY(0);opacity:1;pointer-events:auto
 #hero .hmask{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,var(--plum-black) 28%,rgba(26,18,36,.72) 56%,rgba(26,18,36,.12)),linear-gradient(0deg,var(--plum-black),transparent 32%)}
 #hero .hero-voidmark{position:absolute;right:var(--gut);top:17vh;width:min(34vw,410px);aspect-ratio:1;z-index:2;pointer-events:none;isolation:isolate}
 #hero .hero-fire{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#hero .hero-bubbles{position:absolute;inset:-14%;width:128%;height:128%;z-index:2;pointer-events:none}
 @media(max-width:760px){#hero .hero-voidmark{right:-2.2rem;width:min(30vw,116px)}}
 #hero .wrap{position:relative;z-index:3;width:100%}
 #hero .eyebrow{color:var(--orange-deck)}
@@ -630,35 +631,35 @@ footer .copy{margin-top:1.6rem;font-size:.64rem;letter-spacing:.06em;color:#5a54
       <defs>
         <filter id="voidFire" x="-65%" y="-55%" width="230%" height="210%" color-interpolation-filters="sRGB">
           <feTurbulence type="turbulence" baseFrequency="0.02 0.04" numOctaves="4" seed="7" stitchTiles="stitch" result="noise">
-            <animate attributeName="baseFrequency" dur="8s" values="0.018 0.036;0.028 0.055;0.016 0.030;0.022 0.044;0.018 0.036" repeatCount="indefinite"/>
+            <animate attributeName="baseFrequency" dur="17s" values="0.018 0.036;0.025 0.048;0.016 0.030;0.021 0.041;0.018 0.036" repeatCount="indefinite"/>
           </feTurbulence>
-          <feGaussianBlur in="SourceAlpha" stdDeviation="9" result="glow"/>
-          <feDisplacementMap in="glow" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="44" result="warp">
-            <animate attributeName="scale" dur="5.2s" values="34;60;40;34" repeatCount="indefinite"/>
+          <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="glow"/>
+          <feDisplacementMap in="glow" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="22" result="warp">
+            <animate attributeName="scale" dur="12s" values="16;28;20;16" repeatCount="indefinite"/>
           </feDisplacementMap>
           <feComponentTransfer in="warp" result="heatA">
             <feFuncA type="gamma" amplitude="1" exponent="1.7" offset="0"/>
           </feComponentTransfer>
           <feColorMatrix in="heatA" type="matrix" values="0 0 0 1 0  0 0 0 1 0  0 0 0 1 0  0 0 0 1 0" result="heat"/>
           <feComponentTransfer in="heat" result="fire">
-            <feFuncR type="table" tableValues="0.82 1 1 1 1"/>
-            <feFuncG type="table" tableValues="0.12 0.32 0.56 0.83 1"/>
-            <feFuncB type="table" tableValues="0 0 0.06 0.30 0.85"/>
-            <feFuncA type="table" tableValues="0 0.52 0.86 0.95 1"/>
+            <feFuncR type="table" tableValues="0.85 1 1 1 1"/>
+            <feFuncG type="table" tableValues="0.16 0.38 0.60 0.85 1"/>
+            <feFuncB type="table" tableValues="0 0.02 0.10 0.34 0.85"/>
+            <feFuncA type="table" tableValues="0 0.10 0.18 0.22 0.26"/>
           </feComponentTransfer>
-          <feGaussianBlur in="SourceAlpha" stdDeviation="12" result="shadeb"/>
+          <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="shadeb"/>
           <feFlood flood-color="#160c20" result="shadec"/>
           <feComposite in="shadec" in2="shadeb" operator="in" result="shade0"/>
           <feComponentTransfer in="shade0" result="shade">
-            <feFuncA type="gamma" amplitude="0.5" exponent="1.25" offset="0"/>
+            <feFuncA type="gamma" amplitude="0.28" exponent="1.3" offset="0"/>
           </feComponentTransfer>
-          <feMorphology in="SourceAlpha" operator="dilate" radius="5" result="dil"/>
+          <feMorphology in="SourceAlpha" operator="dilate" radius="4" result="dil"/>
           <feComposite in="dil" in2="SourceAlpha" operator="out" result="ringRaw"/>
-          <feDisplacementMap in="ringRaw" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="7" result="ringD">
-            <animate attributeName="scale" dur="4.4s" values="5;11;6;5" repeatCount="indefinite"/>
+          <feDisplacementMap in="ringRaw" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="4" result="ringD">
+            <animate attributeName="scale" dur="9s" values="3;6;4;3" repeatCount="indefinite"/>
           </feDisplacementMap>
           <feGaussianBlur in="ringD" stdDeviation="0.7" result="ringS"/>
-          <feFlood flood-color="#fff6e0" result="rc"/>
+          <feFlood flood-color="#fff6e0" flood-opacity="0.4" result="rc"/>
           <feComposite in="rc" in2="ringS" operator="in" result="horizon"/>
           <feMerge>
             <feMergeNode in="shade"/>
@@ -674,6 +675,7 @@ footer .copy{margin-top:1.6rem;font-size:.64rem;letter-spacing:.06em;color:#5a54
         <circle cx="251" cy="50" r="20"/>
       </g>
     </svg>
+    <canvas class="hero-bubbles" aria-hidden="true"></canvas>
   </div>
   <div class="wrap">
     <div class="eyebrow">Excite Capital · Miami, Florida</div>
@@ -1336,6 +1338,74 @@ startSignal();
     try{ if(document.hidden){fire.pauseAnimations();} else if(!reduce()){fire.unpauseAnimations();} }catch(e){}
   });
   if(mq&&mq.addEventListener){mq.addEventListener('change',function(){try{reduce()?fire.pauseAnimations():fire.unpauseAnimations();}catch(e){}});}
+})();
+
+/* ===== hero bubbles: soft, slow turbulent gas emitting from the mark edge ===== */
+(function(){
+  var c=document.querySelector('.hero-bubbles'); if(!c) return;
+  var ctx=c.getContext&&c.getContext('2d'); if(!ctx) return;
+  var DPR=Math.min(window.devicePixelRatio||1,2), W=0,H=0, box=0, offX=0, offY=0, SCALE=1.28;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var edge=[], parts=[], running=true, last=performance.now(), cursor=0, started=false;
+  var markup="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'><path d='M156 30L156 84L237 248L236 255L156 417L156 472L252 280L345 470L345 413L163 40L158 30Z' fill='#fff'/><path d='M345 31L263 198L276 227L345 88Z' fill='#fff'/><circle cx='251' cy='50' r='20' fill='#fff'/></svg>";
+  var img=new Image();
+  function size(){
+    W=c.clientWidth||420; H=c.clientHeight||420;
+    c.width=Math.round(W*DPR); c.height=Math.round(H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    box=Math.min(W,H)/SCALE; offX=(W-box)/2; offY=(H-box)/2;
+  }
+  function aAt(d,w,x,y){ if(x<0||y<0||x>=w||y>=w) return 0; return d[((y*w+x)*4)+3]; }
+  function buildEdge(){
+    var S=200, oc=document.createElement('canvas'), o=oc.getContext('2d');
+    oc.width=S; oc.height=S; o.drawImage(img,0,0,S,S);
+    var d=o.getImageData(0,0,S,S).data; edge=[];
+    for(var y=2;y<S-2;y+=2){ for(var x=2;x<S-2;x+=2){
+      if(aAt(d,S,x,y)<140) continue;
+      if(!(aAt(d,S,x+2,y)<60||aAt(d,S,x-2,y)<60||aAt(d,S,x,y+2)<60||aAt(d,S,x,y-2)<60)) continue;
+      var gx=aAt(d,S,x+2,y)-aAt(d,S,x-2,y), gy=aAt(d,S,x,y+2)-aAt(d,S,x,y-2);
+      var nx=-gx, ny=-gy, len=Math.hypot(nx,ny)||1; if(len<1){nx=x-S/2;ny=y-S/2;len=Math.hypot(nx,ny)||1;}
+      edge.push({x:x/S,y:y/S,nx:nx/len,ny:ny/len});
+    }}
+    edge.sort(function(a,b){return Math.atan2(a.y-.5,a.x-.5)-Math.atan2(b.y-.5,b.x-.5);});
+    cursor=(Math.random()*edge.length)|0;
+  }
+  function count(){ return reduce?Math.max(72,Math.round(box*0.5)) : Math.max(216,Math.min(384,Math.round(box*1.34))); }
+  function pick(){ if(!edge.length) return {x:.5,y:.5,nx:0,ny:-1}; cursor=(cursor+7+((Math.random()*11)|0))%edge.length; return edge[cursor]; }
+  function reset(p,now,warm){
+    var e=pick(), life=3000+Math.random()*4200;
+    p.x=e.x; p.y=e.y; p.nx=e.nx; p.ny=e.ny; p.tx=-e.ny; p.ty=e.nx;
+    p.seed=Math.random()*6.283; p.life=life; p.birth=now-(warm?Math.random()*life:0);
+    p.start=box*(0.001+Math.random()*0.01);
+    p.reach=box*(0.005+Math.random()*0.03);
+    p.r=box*(0.006+Math.random()*0.02);
+    p.tone=Math.random();
+  }
+  function seed(n){ var now=performance.now(); parts.length=0; for(var i=0;i<n;i++){var p={};reset(p,now,true);parts.push(p);} }
+  function col(t,a){ var s=t<0.55?'255,150,46':(t<0.85?'255,190,96':'255,228,176'); return 'rgba('+s+','+a.toFixed(3)+')'; }
+  function bubble(p,now){
+    var age=(now-p.birth)/p.life; if(age>=1){reset(p,now,false);age=0;}
+    var fade=Math.sin(age*Math.PI), ease=1-Math.pow(1-age,1.7);
+    var wob=Math.sin(now*0.0011+p.seed*1.7+age*4)*box*0.01;
+    var dist=p.start+p.reach*ease;
+    var x=offX+p.x*box+p.nx*dist+p.tx*wob, y=offY+p.y*box+p.ny*dist+p.ty*wob;
+    var r=p.r*(0.7+0.6*age), a=fade*0.185*(0.55+0.45*p.tone);
+    if(a<=0.002) return;
+    var g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,col(p.tone,a)); g.addColorStop(0.5,col(p.tone,a*0.5)); g.addColorStop(1,'rgba(255,90,20,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fill();
+  }
+  function draw(now){
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation='lighter';
+    for(var i=0;i<parts.length;i++) bubble(parts[i],now);
+    ctx.globalCompositeOperation='source-over';
+  }
+  function loop(now){ if(!running) return; if(now-last>32){last=now;draw(now);} requestAnimationFrame(loop); }
+  img.onload=function(){ started=true; size(); buildEdge(); seed(count()); draw(performance.now()); if(!reduce) requestAnimationFrame(loop); };
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(markup);
+  addEventListener('resize',function(){ if(!started) return; size(); seed(count()); });
+  document.addEventListener('visibilitychange',function(){ running=!document.hidden; if(running&&!reduce){last=performance.now();requestAnimationFrame(loop);} });
 })();
 </script>
 </body>
